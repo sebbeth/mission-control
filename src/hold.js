@@ -12,7 +12,7 @@ console.log('...');
 
   button.on('interrupt', (level) => {
     if(level === 1) {
-        led.flash();
+        led.pulse();
     } else {
         led.off();
     }
