@@ -1,6 +1,6 @@
+const Gpio = require('pigpio').Gpio;
 const Led = require('./Led.js');
 const led = new Led(17);
-const Gpio = require('pigpio').Gpio;
 
 const button = new Gpio(4, {
     mode: Gpio.INPUT,
@@ -10,11 +10,11 @@ const button = new Gpio(4, {
 
 console.log('...');
 
-  button.on('interrupt', (level) => {
-    if(level === 1) {
-        led.pulse();
-    } else {
-        led.off();
-    }
-   });
+button.on('interrupt', (level) => {
+  if(level === 1) {
+      led.pulse();
+  } else {
+      led.off();
+  }
+});
 
