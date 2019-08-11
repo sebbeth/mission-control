@@ -1,0 +1,9 @@
+{
+    "ifttt":"apikey",
+    "pins":{
+        "buttonW":17,
+        "buttonR":4,
+        "ledW":22,
+        "ledR":18
+    }
+}

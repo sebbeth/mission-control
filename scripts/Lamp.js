@@ -1,5 +1,5 @@
 const Gpio = require('pigpio').Gpio;
-const Led = require('./Led.js');
+const Led = require('../helpers/Led.js');
 const config = require('../config.json');
 const https = require("https");
 const led = new Led(18);

@@ -1,4 +1,4 @@
-const Led = require('./Led.js');
+const Led = require('../helpers/Led.js');
 const led = new Led(18);
 
 led.pulse();
