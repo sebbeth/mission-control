@@ -15,13 +15,11 @@ const buttonW = new Gpio(config.pins.buttonW, {
     pullUpDown: Gpio.PUD_DOWN,
     edge: Gpio.EITHER_EDGE
   });
-
+console.log("...");
 
   buttonW.on('interrupt', (level) => {
   if(level === 1) {
-      if (lampState === 0) {
-          led.pulse();
-      }
+      ledW.pulse();
       sendSms("wbutton");
   }
 });
@@ -29,8 +27,8 @@ const buttonW = new Gpio(config.pins.buttonW, {
 
 function sendSms(buttonId) {
   ledW.pulse();
-  const url = "https://maker.ifttt.com/trigger/"+buttonId+"/with/key/" + key;
-  https.post(url,null,() => {
+  const url = "https://maker.ifttt.com/trigger/"+buttonId+"/with/key/" + config.ifttt;
+  https.get(url,() => {
     ledW.off();
   });
 }
