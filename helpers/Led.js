@@ -5,6 +5,7 @@ module.exports = class Led {
         this.pinNumber = pinNumber;
         this.led = new Gpio(pinNumber, {mode: Gpio.OUTPUT});
         this.intervalId = null;
+        this.off();
     }
 
     stopLoop() {
@@ -47,5 +48,31 @@ module.exports = class Led {
                 on = true;
             }
         }, 200);         
+    }
+    blip(count) {
+        this.stopLoop();
+        let on = false;
+        let i = 0;
+        let paused = false;
+        this.intervalId = setInterval(() => {            
+            if (i === count) { // do a long pause
+                i = 0;
+                this.led.digitalWrite(0);
+                paused = true;
+                setInterval(() => {
+                    paused = false;
+                }, 1000);
+            }
+            if (!paused) {
+                if (on) {
+                    this.led.digitalWrite(0);
+                    on = false;                
+                } else {
+                    this.led.digitalWrite(1);
+                    on = true;
+                    i++;
+                }
+            }
+        }, 200);
     }
 }
