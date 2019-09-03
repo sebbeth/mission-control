@@ -1,5 +1,6 @@
 const Gpio = require('pigpio').Gpio;
 const Led = require('../helpers/Led.js');
+const fs = require('fs');
 
 /*
 A manager for the button box, capable of switching between functions
@@ -27,11 +28,31 @@ const Modes = {
     SHUTDOWN: 4
 }
 
-let mode = Modes.MENU;
+let mode = getMode();
 let selector = Modes.A;
 let whiteButtonHoldTimer = null;
-setMode(mode);
 
+startup();
+
+function startup() {
+  
+ ledR.on();
+ ledW.on();
+ setTimeout(() => {
+     ledR.off();
+     ledW.off();
+     ledW.blip(selector);
+     setTimeout(() => {
+        ledW.off();
+        setMode(mode);
+     },1000);
+  },1000);
+}
+
+
+function getMode() {
+
+}
 
 function setMode(newMode) { 
     // This function controls setup of each mode
@@ -64,6 +85,11 @@ function setMode(newMode) {
             break;
     }
     mode = newMode;
+
+    fs.writeFile('prefs', JSON.stringify({"mode": mode}), function (err) {
+        if (err) throw err;
+        console.log('Saved!');
+      });
 }
 
 buttonW.on('interrupt', (level) => {
