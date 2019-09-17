@@ -1,6 +1,8 @@
 const Gpio = require('pigpio').Gpio;
 const Led = require('../helpers/Led.js');
 const SmartLampController = require('../helpers/SmartLampController.js');
+const FirebaseController = require("../helpers/FirebaseController.js");
+
 const config = require('../config.json');
 const fs = require('fs');
 const { exec } = require('child_process');
@@ -21,6 +23,7 @@ const buttonW = new Gpio(17, {
     pullUpDown: Gpio.PUD_DOWN,
     edge: Gpio.EITHER_EDGE
   });
+const firebaseController = new FirebaseController(config);
 
 const Modes = {
     MENU: 0,
@@ -73,9 +76,15 @@ function getMode() {
     
 }
 
+function cb(value) {
+    console.log(value);
+}
+
 function setMode(newMode) { 
     // This function controls setup of each mode
     //reset LEDS and instantate api listeners here
+    firebaseController.close();
+
     switch (newMode) {
         case Modes.MENU:  
             ledR.off();
@@ -83,6 +92,7 @@ function setMode(newMode) {
             displaySelector();
         break;
         case Modes.A: 
+            firebaseController.subscribeToTopic("red",cb);
             console.log("A");
     
         break;    

@@ -9,10 +9,12 @@ module.exports = class SmartLampController {
 
     on() {
         this.on = true;
+        this.setLamp(this.on);
     }
 
     off() {
-        this.off = true;
+        this.on = true;
+        this.setLamp(this.on);
     }
 
     toggle() {
