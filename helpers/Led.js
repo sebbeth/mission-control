@@ -52,6 +52,7 @@ module.exports = class Led {
     blip(count) {
         this.stopLoop();
         let on = false;
+        const delay = 1300;
         let i = 0;
         let paused = false;
         this.intervalId = setInterval(() => {            
@@ -61,7 +62,7 @@ module.exports = class Led {
                 paused = true;
                 setInterval(() => {
                     paused = false;
-                }, 1000);
+                }, delay);
             }
             if (!paused) {
                 if (on) {

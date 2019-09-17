@@ -1,7 +1,9 @@
 const Gpio = require('pigpio').Gpio;
 const Led = require('../helpers/Led.js');
+const SmartLampController = require('../helpers/SmartLampController.js');
+const config = require('../config.json');
 const fs = require('fs');
-
+const { exec } = require('child_process');
 /*
 A manager for the button box, capable of switching between functions
 */
@@ -32,6 +34,8 @@ let mode = getMode();
 let selector = Modes.A;
 let whiteButtonHoldTimer = null;
 
+let smartLampController = new SmartLampController(config.ifttt);
+
 startup();
 
 function startup() {
@@ -41,7 +45,7 @@ function startup() {
  setTimeout(() => {
      ledR.off();
      ledW.off();
-     ledW.blip(selector);
+     ledW.blip(mode);
      setTimeout(() => {
         ledW.off();
         setMode(mode);
@@ -51,7 +55,22 @@ function startup() {
 
 
 function getMode() {
-
+    var path = process.cwd();
+    try {
+        var buffer = fs.readFileSync(path + "/prefs");
+        const prefs = JSON.parse(buffer.toString());
+        console.log(prefs);
+        if ((prefs === undefined) ||
+        (prefs.mode === Modes.SHUTDOWN) || 
+        (prefs.mode === undefined)) {
+            setMode(0);
+            return 0;
+        }
+        return prefs.mode;
+    } catch (error) {
+        return 0;
+    }
+    
 }
 
 function setMode(newMode) { 
@@ -68,28 +87,24 @@ function setMode(newMode) {
     
         break;    
         case Modes.B: 
-            console.log("B");
-            ledR.off();
-            ledW.off();
-            ledR.pulse();
+            console.log("Smart Lamp");
 
         break;    
         case Modes.C:  
         console.log("C");
         break;
         case Modes.SHUTDOWN:
-        console.log("Shutdown");
-        
+            console.log("Shutdown");
+            
+            exec("sudo halt");
         break;
         default:
             break;
     }
     mode = newMode;
-
-    fs.writeFile('prefs', JSON.stringify({"mode": mode}), function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-      });
+    if (mode !== Modes.SHUTDOWN) { // Don't save the mode if it is shutdown so that we don't get into a reboot loop
+        fs.writeFile('prefs', JSON.stringify({"mode": mode}), function (err) {});
+    }
 }
 
 buttonW.on('interrupt', (level) => {
@@ -98,26 +113,70 @@ buttonW.on('interrupt', (level) => {
             console.log("HOLD!");
             setMode(Modes.MENU);
         }, 5000);
-        if (mode === Modes.MENU) {
-            iterateSelector();
+        switch (mode) {
+            case Modes.MENU:
+            break;
+            case Modes.B:
+            break; 
+            case Modes.C:
+                ledW.pulse();
+            break; 
+            default:
+            break;
         }
+        
     } else {
         clearTimeout(whiteButtonHoldTimer); 
+        switch (mode) {
+            case Modes.MENU:
+                iterateSelector();     
+            break;
+            case Modes.B:
+                const lampIsOn = smartLampController.toggle();  
+                (lampIsOn) ? ledW.on() : ledW.off();
+            break; 
+            case Modes.C:
+                ledW.off();
+            break; 
+            default:
+            break;
+        }
     }
 });
 
 buttonR.on('interrupt', (level) => {
 
-    if (mode === Modes.MENU) {
-        if(level === 1) {
-            console.log("Mode " + selector + " selected");
-            ledR.on();
-            ledW.off();
-            setTimeout(() => {
+    if(level === 1) {
+            switch (mode) {
+                case Modes.MENU:
+                    console.log("Mode " + selector + " selected");
+                    ledR.on();
+                    ledW.off();
+                    setTimeout(() => {
+                        ledR.off();
+                        setMode(selector);
+                    },1000);
+                break;
+                case Modes.B:
+                break; 
+                case Modes.C:
+                    ledR.pulse();
+                break; 
+                default:
+                break;
+            }
+    } else {
+        switch (mode) {
+            case Modes.MENU:
+            break;
+            case Modes.B:
+            break; 
+            case Modes.C:
                 ledR.off();
-                setMode(selector);
-            },1000);
-        } 
+            break; 
+            default:
+            break;
+        }
     }
 });
 
