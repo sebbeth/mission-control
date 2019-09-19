@@ -42,18 +42,18 @@ let smartLampController = new SmartLampController(config.ifttt);
 startup();
 
 function startup() {
-  
- ledR.on();
- ledW.on();
- setTimeout(() => {
-     ledR.off();
-     ledW.off();
-     ledW.blip(mode);
-     setTimeout(() => {
+    console.log("...");
+    ledR.on();
+    ledW.on();
+    setTimeout(() => {
+        ledR.off();
+        ledW.off();
+        ledW.blip(mode);
+        setTimeout(() => {
         ledW.off();
         setMode(mode);
-     },1000);
-  },1000);
+        },1000);
+    },1000);
 }
 
 
@@ -76,9 +76,6 @@ function getMode() {
     
 }
 
-function cb(value) {
-    console.log(value);
-}
 
 function setMode(newMode) { 
     // This function controls setup of each mode
@@ -92,7 +89,21 @@ function setMode(newMode) {
             displaySelector();
         break;
         case Modes.A: 
-            firebaseController.subscribeToTopic("red",cb);
+            firebaseController.subscribeToTopic("white",(value) => {
+                if (value === true) {
+                    ledW.pulse();
+                } else {
+                    ledW.off();
+                }
+            });
+            firebaseController.subscribeToTopic("red",(value) => {
+                if (value === true) {
+                    ledR.pulse();
+                } else {
+                    ledR.off();
+                }
+            });
+
             console.log("A");
     
         break;    
@@ -141,6 +152,9 @@ buttonW.on('interrupt', (level) => {
             case Modes.MENU:
                 iterateSelector();     
             break;
+            case Modes.A:
+                    firebaseController.writeToTopic("white",false);
+            break;
             case Modes.B:
                 const lampIsOn = smartLampController.toggle();  
                 (lampIsOn) ? ledW.on() : ledW.off();
@@ -166,6 +180,9 @@ buttonR.on('interrupt', (level) => {
                         ledR.off();
                         setMode(selector);
                     },1000);
+                break;
+                case Modes.A:
+                        firebaseController.writeToTopic("red",false);
                 break;
                 case Modes.B:
                 break; 

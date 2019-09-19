@@ -18,9 +18,7 @@ module.exports = class FirebaseController {
     }
 
     writeToTopic(topic, value) {
-        firebase.database().ref(topic).set({
-            value
-          });
+        firebase.database().ref(topic).set(value);
     }
 
     close() {
