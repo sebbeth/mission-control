@@ -96,7 +96,7 @@ function setMode(newMode) {
             console.log("A");
     
         break;    
-        case Modes.B: 
+        case Modes.B:
             console.log("Smart Lamp");
 
         break;    

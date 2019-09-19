@@ -1,8 +1,6 @@
 const firebase = require("firebase/app");
 require("firebase/database");
 
-
-
 module.exports = class FirebaseController {
     constructor(config) {
       this.firebaseConfig = config.firebaseConfig;
@@ -16,8 +14,13 @@ module.exports = class FirebaseController {
         this.listeners.push(listener);
         listener.on('value', function(snapshot) {
             callback(snapshot.val());
-        });
-        
+        });   
+    }
+
+    writeToTopic(topic, value) {
+        firebase.database().ref(topic).set({
+            value
+          });
     }
 
     close() {

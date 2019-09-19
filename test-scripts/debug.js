@@ -7,8 +7,9 @@ const FirebaseController = require("../helpers/FirebaseController.js");
 
 const firebaseController = new FirebaseController(config);
 
-firebaseController.subscribeToTopic("red",cb);
+// firebaseController.subscribeToTopic("red",cb);
 
+firebaseController.writeToTopic("red",999);
 
 
 
