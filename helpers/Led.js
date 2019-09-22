@@ -23,7 +23,7 @@ module.exports = class Led {
         this.stopLoop();
         this.led.digitalWrite(0); 
     }
-    pulse() {
+    pulse(speed = 20) {
         this.stopLoop();
         let x = 0;
         let dutyCycle = 0;
@@ -34,7 +34,7 @@ module.exports = class Led {
             if (x >= 2 * Math.PI) {
                 x = 0;
             }
-        }, 20);   
+        }, speed);   
     }
     flash() {
         this.stopLoop();
